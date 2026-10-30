@@ -1,0 +1,29 @@
+EXPLICAÇÃO SOBRE O CÁLCULO DE CONVERSÃO DE BITCOIN (BTC)
+
+1. DE DINHEIRO (FIAT) PARA BITCOIN:
+A fórmula básica é:
+Quantidade de BTC = Valor em Dinheiro / Preço atual do BTC
+
+Exemplo:
+- Você tem R$ 500,00
+- Preço do BTC: R$ 350.000,00
+- Cálculo: 500 / 350.000 = 0,00142857 BTC
+
+---
+
+2. DE BITCOIN PARA DINHEIRO (FIAT):
+A fórmula básica é:
+Valor em Dinheiro = Quantidade de BTC * Preço atual do BTC
+
+Exemplo:
+- Você tem 0,005 BTC
+- Preço do BTC: R$ 350.000,00
+- Cálculo: 0,005 * 350.000 = R$ 1.750,00
+
+---
+
+NOTAS IMPORTANTES:
+- Frações: O Bitcoin é divisível até 8 casas decimais (1 Satoshi = 0,00000001 BTC).
+- Taxas: Lembre-se que corretoras (exchanges) cobram taxas de negociação, 
+  o que significa que você receberá um valor líquido um pouco menor que o 
+  cálculo bruto.
