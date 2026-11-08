@@ -1,48 +1,39 @@
-# Agents — agent loop em Python
+# Autonomous Agent Framework
 
-Prática do curso **AI Agents and Agentic AI with Python & Generative AI** (Vanderbilt University / Coursera, nota 100% — [certificado](https://coursera.org/verify/XXZRDYYGJD8B)).
+This project provides a modular framework for creating autonomous agents capable of interacting with a project's files, utilizing LLMs to reason about tasks, execute tool calls, and maintain conversation state.
 
-Implementação do zero, sem framework de agentes, para entender cada peça de um agente: loop de decisão, tool calling, memória e critério de parada. As chamadas ao modelo passam pelo [LiteLLM](https://github.com/BerriAI/litellm), então trocar de provedor (Gemini, OpenAI, Anthropic) é trocar a string do modelo.
+## Core Components
 
-## Arquivos
+- **`core/`**: Contains the core logic and interfaces:
+    - `agent.py`: Orchestrates the agent's goal-oriented loop, managing memory and action execution.
+    - `environment.py`: Executes actions safely, providing error handling and logging.
+    - `action.py`: Definitions for actions and the `ActionRegistry` to manage them.
+    - `memory.py`: Tracks conversation history and task context.
+    - `models.py`: Data structures for prompts, tool calls, and assistant messages.
+    - `language.py`: Handles formatting prompts and parsing LLM responses for the framework.
+- **`agents/`**:
+    - `readme_agent.py`: A specialized agent implementation that demonstrates the framework by navigating the project to generate documentation.
+    - `tools.py`: Contains the actual implementation of project interaction tools (listing, reading, writing files).
+- **`services/`**:
+    - `llm/service.py`: A wrapper for LiteLLM to handle API communication, rate-limiting, and response parsing.
+- **`main.py`**: The entry point to run the agent.
 
-| Arquivo | O que faz |
-|---|---|
-| `loop.py` | Agente com **agent loop**: a cada iteração o LLM escolhe uma tool (`list_files`, `read_file`, `terminate`) num bloco `action` em JSON; o resultado da tool volta para a memória como feedback. Para no `terminate` ou após 10 iterações. |
-| `agent.py` | Agente que **gera código Python** a partir de um pedido. Mostra o código e só executa com confirmação, com timeout de 30 s. |
-| `informations/` | Dados de exemplo consultados pelo `loop.py`: saldo, cotações do bitcoin em reais e explicação da conversão. |
+## Configuration
 
-## Como o loop funciona (`loop.py`)
+The project uses a `.env` file for configuration. Required variables include:
+- `LLM_DEFAULT_MODEL`: The LLM to be used (e.g., `gpt-4o`).
+- `MAX_RESPONSE_TOKENS`
+- `MAX_RETRIES`
+- `MAX_ITERATIONS`
+- (Optional) `FREE_TIER` and `FREE_TIER_RPM` for rate-limiting configurations.
 
-```
-pedido do usuário
-   └─► LLM decide a próxima ação ──► ```action {"tool_name": "...", "args": "..."}```
-          ▲                                   │
-          └──── resultado da tool volta ◄─────┘   (até "terminate" ou 10 iterações)
-```
+## How it works
 
-Exemplo de pedido: *"Quantos bitcoins consigo comprar com meu saldo pela cotação mais recente?"* — o agente lista os arquivos, lê o saldo e as cotações, aplica a fórmula da explicação e encerra com a resposta.
-
-## Rodar
-
-```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.exemple .env             # preencha GEMINI_API_KEY (ou exporte a variável no terminal)
-
-python loop.py
-python agent.py
-```
-
-Modelo usado: `gemini/gemini-3.1-flash-lite`.
-
-## Segurança
-
-`agent.py` executa código escrito por um LLM. Por isso ele mostra o código antes, pede confirmação explícita e encerra a execução após 30 s. Mesmo assim o código roda no seu Python local: para pedidos arbitrários, use um ambiente isolado (container ou VM).
-
-## Próximos passos
-
-- Registro de tools com decorators, mantendo definição e documentação da tool sincronizadas.
-- Modelar o agente com o framework GAME (Goals, Actions, Memory, Environment).
-- Tratar respostas do LLM fora do formato `action` e erros de leitura de arquivo dentro do loop.
+1. The agent is initialized with a set of `Goal`s.
+2. In the `run()` loop, the agent:
+    - Constructs a prompt based on its memory and available tools.
+    - Sends the prompt to the configured LLM service.
+    - Parses the returned tools/actions.
+    - Executes the tools via the `Environment`.
+    - Updates its memory with the results.
+    - Continues until a `terminate` tool call is issued or the max iteration limit is reached.
