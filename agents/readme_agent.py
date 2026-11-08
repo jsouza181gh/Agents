@@ -58,12 +58,14 @@ class ReadmeAgent:
 
 
     def build_actions(self) -> ActionRegistry:
-        action_registry = ActionRegistry()
+        action_registry = ActionRegistry(tags=["file_operations", "system"])
 
-        action_registry.register(replace(tools.LIST_PROJECT_FILES, function=self.tracked_list_project_files))
-        action_registry.register(replace(tools.READ_PROJECT_FILE, function=self.tracked_read_project_file))
-        action_registry.register(replace(tools.WRITE_PROJECT_FILE, function=self.guarded_write_project_file))
-        action_registry.register(tools.TERMINATE)
+        for name, function in {
+            "list_project_files": self.tracked_list_project_files,
+            "read_project_file": self.tracked_read_project_file,
+            "write_project_file": self.guarded_write_project_file,
+        }.items():
+            action_registry.register(replace(action_registry.actions[name], function=function))
 
         return action_registry
 
